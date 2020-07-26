@@ -72,7 +72,9 @@ if add_selectbox == DENSITY_DETECTION:
     x_coords, y_coords, sizes = load_density_data()
 
     sizes_temp = sizes
-    sizes_temp.append(50)
+    sizes_temp.append(10)
+
+    thresold = st.slider('Thresold', value=5)
 
     fig.add_trace(go.Scatter(
         # x=[10, 10, 10, 40, 70, 97, 97, 90, 63, 30, 40, 40, 70, 70],
@@ -82,6 +84,7 @@ if add_selectbox == DENSITY_DETECTION:
         text=['Count: ' + str(count) for count in sizes],
         mode='markers',
         marker=dict(
+            color=['blue' if x<=thresold else 'red' for x in sizes],
             size=sizes,
             sizemode='area',
             sizeref=2.*max(sizes_temp)/(40.**2),
