@@ -44,8 +44,8 @@ demo_violations = []
 
 # Generate demo data
 for x in demo_x:
-    demo_mask.append(random.randint(2, 200))
-    demo_no_mask.append(random.randint(2, 200))
+    demo_mask.append(random.randint(0, 100))
+    demo_no_mask.append(random.randint(0, 100))
     demo_violations.append(random.randint(0, 10))
 
 # Add a selectbox to the sidebar:
