@@ -8,6 +8,17 @@ This is the front-end part for the Application being made as part of #BuildwithA
   
 ![Architecture Image](diagram.png)
 
+
+## Screenshots
+### Density Tracker
+![Density Chart](density.png)
+
+### Face Mask Detection
+![Masks Chart](masks.png)
+
+### Social Distancing Monitor
+![Distance Violation Chart](distance.png)
+
 ### Team Members
 [Ignacio Amat](https://github.com/IgnacioAmat)  
 [Dhruv Sheth](https://github.com/dhruvsheth-ai)  
