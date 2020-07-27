@@ -1,5 +1,12 @@
 # Shopping Mall Covid Monitor
-This app is being made as part of #BuildwithAI hackathon.
+This is the front-end part for the Application being made as part of #BuildwithAI hackathon.
+
+### Architecture
+- Frontend - Built with [Streamlit](https://www.streamlit.io/). It fetches the data from the Backend APIs. It also has a demo mode where it shows the fuctionality against randomly generated data.
+- Backend - Built with Python [Flask](https://flask.palletsprojects.com/en/1.1.x/) and [TinyDB](https://tinydb.readthedocs.io/en/stable/). It hosts APIs to update and get data from the database.
+- ML Model - Built with Python. It gets the data from the Cameras, and runs the algorithms to get the output. The Output is then sent to the Backend database using the APIs.
+  
+![Architecture Image](diagram.png)
 
 ### Team Members
 [Ignacio Amat](https://github.com/IgnacioAmat)  
