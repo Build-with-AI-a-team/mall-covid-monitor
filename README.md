@@ -26,4 +26,4 @@ This is the front-end part for the Application being made as part of #BuildwithA
 [Parijat Khan](https://github.com/Parijat29)  
 [Ramona Rajagopalan](https://www.linkedin.com/in/ramona-rajagopalan/)  
 [Arijit Das](https://github.com/arijitdas123student)  
-[Deepak Vohra](#)
+[Deepak Vohra](https://www.linkedin.com/in/vohra-deepak/)
