@@ -17,6 +17,7 @@ from floorplan import makeplan
 
 DENSITY_DETECTION = 'Density Detection'
 MASK_DETECTION = 'Face-Mask Detection'
+VIOLATION_DETECTION = 'Social Distancing Violations'
 
 API_BASE_URL = "https://a-team-mall-api.herokuapp.com/"
 
@@ -34,6 +35,21 @@ def load_density_data():
         sizes = [item['count'] for item in content]
 
     return x_coords, y_coords, sizes
+
+def load_violation_data():
+    x_coords = []
+    y_coords = []
+    violations = []
+    density_url = API_BASE_URL + "violations"
+    
+    r = requests.get(density_url)
+    if r.status_code == 200:
+        content = r.json()
+        x_coords = [item['x'] for item in content]
+        y_coords = [item['y'] for item in content]
+        violations = [item['count'] for item in content]
+
+    return x_coords, y_coords, violations
 
 def load_mask_data():
     x_coords = []
@@ -53,13 +69,13 @@ def load_mask_data():
     return x_coords, y_coords, masks, nomasks
 
 
-st.title('Mall-monitor by <A-Team>')
+st.title('Mall-monitor by Team <SaferWherever>')
 st.header('')
 
 # Add a selectbox to the sidebar:
 add_selectbox = st.sidebar.selectbox(
     'Choose Application',
-    (DENSITY_DETECTION, MASK_DETECTION)
+    (DENSITY_DETECTION, MASK_DETECTION, VIOLATION_DETECTION)
 )
 
 fig = go.Figure()
@@ -116,6 +132,24 @@ elif add_selectbox == MASK_DETECTION:
 
     fig.update_layout(
         barmode='stack',
+        autosize=False,
+        width=735,
+        height=350,
+        margin=dict(
+            l=0,
+            r=0,
+            b=0,
+            t=0,
+            pad=0
+        )
+    )
+
+elif add_selectbox == VIOLATION_DETECTION:
+    x_coords, y_coords, violations = load_violation_data()
+
+    fig.add_trace(go.Bar(x=["ST" + str(i+1) for i in range(len(x_coords))], y=violations, name='Violations'))
+    
+    fig.update_layout(
         autosize=False,
         width=735,
         height=350,
