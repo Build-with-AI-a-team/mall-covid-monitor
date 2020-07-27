@@ -12,8 +12,15 @@ import pandas as pd
 import plotly.graph_objects as go
 import requests
 import time
+import os
+import json
+import random
+from operator import add
 
 from floorplan import makeplan
+
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 DENSITY_DETECTION = 'Density Detection'
 MASK_DETECTION = 'Face-Mask Detection'
@@ -21,18 +28,49 @@ VIOLATION_DETECTION = 'Social Distancing Violations'
 
 API_BASE_URL = "https://a-team-mall-api.herokuapp.com/"
 
+st.sidebar.title('Mall-monitor by Team <SaferWherever>')
+
+st.sidebar.header('Settings & Navigation')
+
+st.sidebar.text('Unchecking the Demo mode will make the \nApp run with Real-time data received \nfrom open public Cameras.')
+
+demo_mode = st.sidebar.checkbox("Demo Mode", value=True)
+
+demo_x = [10, 10, 10, 40, 70, 97, 97, 90, 63, 30, 40, 40, 70, 70]
+demo_y = [10, 25, 40, 45, 45, 40, 20, 5, 5, 5, 20, 30, 20, 30]
+demo_mask = []
+demo_no_mask = []
+demo_violations = []
+
+# Generate demo data
+for x in demo_x:
+    demo_mask.append(random.randint(2, 200))
+    demo_no_mask.append(random.randint(2, 200))
+    demo_violations.append(random.randint(0, 10))
+
+# Add a selectbox to the sidebar:
+add_selectbox = st.sidebar.selectbox(
+    'Choose Application',
+    (DENSITY_DETECTION, MASK_DETECTION, VIOLATION_DETECTION)
+)
+
 def load_density_data():
     x_coords = []
     y_coords = []
     sizes = []
     density_url = API_BASE_URL + "density"
     
-    r = requests.get(density_url)
-    if r.status_code == 200:
-        content = r.json()
-        x_coords = [item['x'] for item in content]
-        y_coords = [item['y'] for item in content]
-        sizes = [item['count'] for item in content]
+    if demo_mode:
+        x_coords = demo_x
+        y_coords = demo_y
+        sizes = list(map(add, demo_mask, demo_no_mask))
+    else:
+        r = requests.get(density_url)
+        if r.status_code == 200:
+            content = r.json()
+            x_coords = [item['x'] for item in content]
+            y_coords = [item['y'] for item in content]
+            sizes = [item['count'] for item in content]
 
     return x_coords, y_coords, sizes
 
@@ -40,14 +78,19 @@ def load_violation_data():
     x_coords = []
     y_coords = []
     violations = []
-    density_url = API_BASE_URL + "violations"
+    violations_url = API_BASE_URL + "violations"
     
-    r = requests.get(density_url)
-    if r.status_code == 200:
-        content = r.json()
-        x_coords = [item['x'] for item in content]
-        y_coords = [item['y'] for item in content]
-        violations = [item['count'] for item in content]
+    if demo_mode:
+        x_coords = demo_x
+        y_coords = demo_y
+        violations = demo_violations
+    else:
+        r = requests.get(violations_url)
+        if r.status_code == 200:
+            content = r.json()
+            x_coords = [item['x'] for item in content]
+            y_coords = [item['y'] for item in content]
+            violations = [item['count'] for item in content]
 
     return x_coords, y_coords, violations
 
@@ -58,30 +101,29 @@ def load_mask_data():
     nomasks = []
     mask_url = API_BASE_URL + "mask"
 
-    r = requests.get(mask_url)
-    if r.status_code == 200:
-        content = r.json()
-        x_coords = [item['x'] for item in content]
-        y_coords = [item['y'] for item in content]
-        masks = [item['mask'] for item in content]
-        nomasks = [item['nomask'] for item in content]
+    if demo_mode:
+        x_coords = demo_x
+        y_coords = demo_y
+        masks = demo_mask
+        nomasks = demo_no_mask
+        sizes = list(map(add, demo_mask, demo_no_mask))
+    else:
+        r = requests.get(mask_url)
+        if r.status_code == 200:
+            content = r.json()
+            x_coords = [item['x'] for item in content]
+            y_coords = [item['y'] for item in content]
+            masks = [item['mask'] for item in content]
+            nomasks = [item['nomask'] for item in content]
 
     return x_coords, y_coords, masks, nomasks
 
-
-st.title('Mall-monitor by Team <SaferWherever>')
-st.header('')
-
-# Add a selectbox to the sidebar:
-add_selectbox = st.sidebar.selectbox(
-    'Choose Application',
-    (DENSITY_DETECTION, MASK_DETECTION, VIOLATION_DETECTION)
-)
 
 fig = go.Figure()
 mask_fig = go.Figure()
 
 if add_selectbox == DENSITY_DETECTION:
+    st.header('Monitor Density in each Store')
     makeplan(fig)
 
     # size = [20, 40, 60, 80, 100, 80, 60, 40, 20, 40, 60, 20, 10, 5]
@@ -90,7 +132,11 @@ if add_selectbox == DENSITY_DETECTION:
     sizes_temp = sizes
     sizes_temp.append(10)
 
-    thresold = st.slider('Thresold', value=5)
+    init_thresold = 5
+    if demo_mode:
+        init_thresold = 80
+
+    thresold = st.slider('Thresold', value=init_thresold, max_value=200)
 
     fig.add_trace(go.Scatter(
         # x=[10, 10, 10, 40, 70, 97, 97, 90, 63, 30, 40, 40, 70, 70],
@@ -125,6 +171,7 @@ if add_selectbox == DENSITY_DETECTION:
     )
 
 elif add_selectbox == MASK_DETECTION:
+    st.header('Monitor No. of People Wearing Masks or Not')
     x_coords, y_coords, masks, nomasks = load_mask_data()
 
     fig.add_trace(go.Bar(x=["ST" + str(i+1) for i in range(len(x_coords))], y=masks, name='Mask'))
@@ -145,6 +192,7 @@ elif add_selectbox == MASK_DETECTION:
     )
 
 elif add_selectbox == VIOLATION_DETECTION:
+    st.header('Monitor No. of Social Distancing Violations')
     x_coords, y_coords, violations = load_violation_data()
 
     fig.add_trace(go.Bar(x=["ST" + str(i+1) for i in range(len(x_coords))], y=violations, name='Violations'))
