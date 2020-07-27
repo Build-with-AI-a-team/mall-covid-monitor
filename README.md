@@ -1,5 +1,6 @@
 # Shopping Mall Covid Monitor
 This is the front-end part for the Application being made as part of #BuildwithAI hackathon.
+It fetches the Data from the [Backend](https://github.com/Build-with-AI-a-team/mall-api-server) using APIs
 
 ### Architecture
 - Frontend - Built with [Streamlit](https://www.streamlit.io/). It fetches the data from the Backend APIs. It also has a demo mode where it shows the fuctionality against randomly generated data.
